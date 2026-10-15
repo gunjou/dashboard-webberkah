@@ -99,8 +99,7 @@ const SecretCodeOverlay = ({ onAccessGranted }) => {
               </h1>
 
               <p className="mx-auto mt-2.5 max-w-xs text-sm leading-relaxed text-gray-500 dark:text-gray-400">
-                Masukkan kode akses rahasia Anda untuk masuk ke panel informasi
-                bisnis.
+                Masukkan kode akses untuk masuk ke panel informasi bisnis.
               </p>
             </div>
 
@@ -124,7 +123,7 @@ const SecretCodeOverlay = ({ onAccessGranted }) => {
                     autoComplete="current-password"
                     autoFocus
                     disabled={loading}
-                    className="h-14 w-full rounded-2xl border-2 border-gray-100 bg-gray-50/50 px-5 pr-14 text-base font-semibold tracking-wider text-gray-800 outline-none transition-all placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-400 focus:border-custom-merah-terang focus:bg-white focus:ring-4 focus:ring-red-500/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-800/50 dark:text-white dark:focus:bg-gray-900"
+                    className="h-14 w-full rounded-2xl border-2 border-gray-100 bg-gray-50/50 px-5 pr-14 text-base tracking-wider text-gray-800 outline-none transition-all placeholder:font-normal placeholder:tracking-normal placeholder:text-gray-400 focus:border-custom-merah-terang focus:bg-white focus:ring-4 focus:ring-red-500/10 disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-800 dark:bg-gray-800/50 dark:text-white dark:focus:bg-gray-900"
                   />
 
                   <button
@@ -167,7 +166,7 @@ const SecretCodeOverlay = ({ onAccessGranted }) => {
 
             {/* Security Badge */}
             <div className="mt-8 flex items-center justify-center gap-2 text-xs font-medium text-gray-400 dark:text-gray-500">
-              <SiAdguard className="text-sm text-custom-merah-terang" />
+              <SiAdguard className="text-sm text-green-500" />
               <span>Akses diamankan dengan enkripsi sistem</span>
             </div>
           </div>
