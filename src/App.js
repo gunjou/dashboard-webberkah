@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Dashboard from "./pages/Dashboard";
+import ExecutiveMonitoringDashboard from "./pages/ExecutiveMonitoringDashboard";
 import SecretCodeOverlay from "./components/access/SecretCodeOverlay";
 import { getValidDashboardToken, clearDashboardToken } from "./utils/auth";
 
@@ -10,6 +11,8 @@ function App() {
     Boolean(getValidDashboardToken()),
   );
 
+  const [activeDashboard, setActiveDashboard] = useState("MAIN");
+
   const lockDashboard = useCallback(() => {
     clearDashboardToken();
     setHasAccess(false);
@@ -17,6 +20,12 @@ function App() {
 
   const handleAccessGranted = useCallback(() => {
     setHasAccess(Boolean(getValidDashboardToken()));
+  }, []);
+
+  const toggleDashboard = useCallback(() => {
+    setActiveDashboard((current) =>
+      current === "MAIN" ? "EXECUTIVE" : "MAIN",
+    );
   }, []);
 
   useEffect(() => {
@@ -66,7 +75,17 @@ function App() {
   return (
     <div className="min-h-screen">
       {hasAccess ? (
-        <Dashboard />
+        activeDashboard === "MAIN" ? (
+          <Dashboard
+            onSwitchDashboard={toggleDashboard}
+            isExecutiveDashboard={false}
+          />
+        ) : (
+          <ExecutiveMonitoringDashboard
+            onSwitchDashboard={toggleDashboard}
+            isExecutiveDashboard={true}
+          />
+        )
       ) : (
         <SecretCodeOverlay onAccessGranted={handleAccessGranted} />
       )}

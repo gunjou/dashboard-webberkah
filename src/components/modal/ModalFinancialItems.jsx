@@ -79,6 +79,7 @@ const ModalFinancialItems = ({
   title,
   category,
   items = [],
+  total = 0,
 }) => {
   if (!isOpen) return null;
 
@@ -213,14 +214,23 @@ const ModalFinancialItems = ({
           )}
         </div>
 
-        <div className="flex shrink-0 justify-end border-t border-gray-100 px-4 py-3 dark:border-gray-800">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 px-4 py-3 dark:border-gray-800 sm:px-5">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg bg-custom-merah-terang px-4 py-2 text-xs font-semibold text-white transition hover:bg-custom-merah"
+            className="shrink-0 rounded-lg bg-custom-merah-terang px-4 py-2 text-xs font-semibold text-white transition hover:bg-custom-merah"
           >
             Tutup
           </button>
+
+          <div className="min-w-0">
+            <p className="text-[10px] font-medium text-gray-500 sm:text-xs">
+              Total {items.length} data
+            </p>
+            <p className="mt-0.5 break-words text-sm font-bold text-gray-800 dark:text-gray-100 sm:text-base">
+              {formatCurrency(total)}
+            </p>
+          </div>
         </div>
       </div>
     </div>

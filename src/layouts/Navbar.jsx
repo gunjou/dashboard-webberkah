@@ -12,8 +12,9 @@ import {
 import LogoBerkah from "../assets/logo_large.png";
 import LogoBerkahWhite from "../assets/logo_white.png";
 import { useCurrencyVisibility } from "../utils/helper";
+import { LuLayoutDashboard, LuSquareDashedKanban } from "react-icons/lu";
 
-const Navbar = () => {
+const Navbar = ({ onSwitchDashboard, isExecutiveDashboard = false }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [darkMode, setDarkMode] = useState(() =>
     document.documentElement.classList.contains("dark"),
@@ -125,6 +126,27 @@ const Navbar = () => {
 
         {/* Actions & Utilities */}
         <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
+          {/* Switch Dashboard */}
+          <button
+            type="button"
+            onClick={onSwitchDashboard}
+            aria-label={
+              isExecutiveDashboard
+                ? "Kembali ke dashboard utama"
+                : "Buka executive monitoring"
+            }
+            title={
+              isExecutiveDashboard ? "Dashboard Utama" : "Executive Monitoring"
+            }
+            className={actionButtonClass}
+          >
+            {isExecutiveDashboard ? (
+              <LuLayoutDashboard size={19} />
+            ) : (
+              <LuSquareDashedKanban size={19} />
+            )}
+          </button>
+
           {/* Realtime Clock Widget */}
           <div className="flex items-center gap-2.5 rounded-2xl border border-gray-200/80 bg-gray-50/50 px-3.5 py-2 shadow-inner dark:border-gray-800 dark:bg-gray-800/50 sm:px-4">
             <FiClock className="shrink-0 text-base text-custom-merah-terang animate-pulse" />

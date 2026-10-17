@@ -12,18 +12,21 @@ import { formatDate } from "../../utils/helper";
 const HEALTH_CONFIG = {
   EXPIRED: {
     label: "Expired",
+    shortLabel: "Expired",
     className:
       "border-red-200 bg-red-50 text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300",
     icon: FiAlertCircle,
   },
   DUE_SOON: {
     label: "Due Soon",
+    shortLabel: "Due Soon",
     className:
       "border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300",
     icon: FiClock,
   },
   ON_TRACK: {
     label: "On Track",
+    shortLabel: "On Track",
     className:
       "border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300",
     icon: FiCheckCircle,
@@ -56,7 +59,6 @@ const getItemHealth = (item) => {
   return "";
 };
 
-// Menentukan tanggal acuan berdasarkan stage pekerjaan.
 const getStageDate = (item, stage) => {
   const stageCode = (
     typeof stage === "string"
@@ -117,6 +119,7 @@ const ModalStageWorkItems = ({
     };
 
     window.addEventListener("keydown", handleKeyDown);
+
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
@@ -130,9 +133,20 @@ const ModalStageWorkItems = ({
 
   const healthConfig = healthFilter ? HEALTH_CONFIG[healthFilter] : null;
 
+  const stageCode = (
+    stage.stage ??
+    stage.code ??
+    stage.key ??
+    ""
+  ).toUpperCase();
+
+  const isContractStage = ["CONTRACT", "COMPLETED"].includes(stageCode);
+
+  const total = filteredItems.length;
+
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-3 backdrop-blur-sm sm:p-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-2 backdrop-blur-sm sm:p-4"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
@@ -141,109 +155,144 @@ const ModalStageWorkItems = ({
         role="dialog"
         aria-modal="true"
         aria-labelledby="stage-modal-title"
-        className="flex max-h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900"
+        className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-900"
       >
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 border-b border-gray-100 p-5 dark:border-gray-800 sm:p-6">
-          <div className="min-w-0">
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-custom-merah/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-custom-merah-terang">
-                <FiBriefcase size={12} />
-                Tahapan Pekerjaan
-              </span>
-
-              {healthConfig && (
-                <span
-                  className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${healthConfig.className}`}
-                >
-                  <healthConfig.icon size={12} />
-                  {healthConfig.label}
+        {/* Compact Header */}
+        <header className="shrink-0 border-b border-gray-100 px-4 py-3 dark:border-gray-800 sm:px-5">
+          <div className="flex items-center gap-3">
+            {/* Title */}
+            <div className="min-w-0 flex-1">
+              <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                <span className="inline-flex items-center gap-1 rounded-md bg-custom-merah/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-custom-merah-terang">
+                  <FiBriefcase size={11} />
+                  Tahapan Pekerjaan
                 </span>
-              )}
+
+                {healthConfig && (
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[9px] font-bold ${healthConfig.className}`}
+                  >
+                    <healthConfig.icon size={11} />
+                    {healthConfig.label}
+                  </span>
+                )}
+              </div>
+
+              <h2
+                id="stage-modal-title"
+                className="truncate text-base font-extrabold text-gray-900 dark:text-white sm:text-lg"
+              >
+                {stage.label}
+              </h2>
             </div>
 
-            <h2
-              id="stage-modal-title"
-              className="text-lg font-black text-gray-900 dark:text-white sm:text-xl"
-            >
-              {stage.label}
-            </h2>
-
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              {healthFilter
-                ? `Pekerjaan dengan kondisi ${healthConfig?.label || healthFilter}`
-                : "Daftar seluruh pekerjaan pada tahapan ini"}
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Tutup modal"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-gray-200 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:border-gray-700 dark:hover:bg-gray-800 dark:hover:text-white"
-          >
-            <FiX size={18} />
-          </button>
-        </div>
-
-        {/* Summary */}
-        <div className="grid grid-cols-2 gap-3 border-b border-gray-100 bg-gray-50/70 p-4 dark:border-gray-800 dark:bg-gray-800/30 sm:grid-cols-4 sm:px-6">
-          <div className="rounded-xl border border-gray-200/70 bg-white p-3 dark:border-gray-700 dark:bg-gray-900">
-            <p className="text-[10px] font-semibold text-gray-400">
-              Total ditampilkan
-            </p>
-            <p className="mt-1 text-xl font-black tabular-nums text-gray-900 dark:text-white">
-              {filteredItems.length}
-            </p>
-          </div>
-
-          {Object.entries(HEALTH_CONFIG).map(([key, config]) => {
-            const Icon = config.icon;
-            const count = stage.health?.[key] ?? 0;
-
-            return (
-              <div
-                key={key}
-                className="rounded-xl border border-gray-200/70 bg-white p-3 dark:border-gray-700 dark:bg-gray-900"
-              >
-                <div className="flex items-center gap-1.5">
-                  <Icon size={12} className="shrink-0" />
-                  <p className="truncate text-[10px] font-semibold text-gray-400">
-                    {config.label}
+            {/* Inline Summary */}
+            <div className="hidden shrink-0 items-center gap-1.5 md:flex">
+              <div className="flex items-center w-24 gap-3 rounded-lg border px-2.5 py-1.5 dark:border-gray-700 dark:bg-gray-800">
+                <FiBriefcase size={13} />
+                <div>
+                  <p className="text-[9px] font-medium leading-tight opacity-80">
+                    Total
+                  </p>
+                  <p className="text-sm font-extrabold leading-tight tabular-nums">
+                    {total}
                   </p>
                 </div>
-                <p className="mt-1 text-xl font-black tabular-nums text-gray-900 dark:text-white">
-                  {count}
-                </p>
               </div>
-            );
-          })}
-        </div>
 
-        {/* List pekerjaan */}
-        <div className="min-h-0 flex-1 overflow-auto p-4 sm:p-6">
+              {Object.entries(HEALTH_CONFIG).map(([key, config]) => {
+                const Icon = config.icon;
+                const count = stage.health?.[key] ?? 0;
+
+                return (
+                  <div
+                    key={key}
+                    className={`flex items-center w-24 gap-3 rounded-lg border px-2.5 py-1.5 ${config.className}`}
+                    title={config.label}
+                  >
+                    <Icon size={13} />
+                    <div>
+                      <p className="text-[9px] font-medium leading-tight opacity-80">
+                        {config.shortLabel}
+                      </p>
+                      <p className="text-sm font-extrabold leading-tight tabular-nums">
+                        {count}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Close */}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Tutup modal"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:border-gray-700 dark:hover:bg-gray-800 dark:hover:text-white"
+            >
+              <FiX size={16} />
+            </button>
+          </div>
+
+          {/* Inline Summary: Mobile */}
+          <div className="mt-3 grid grid-cols-4 gap-1.5 md:hidden">
+            <div className="rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-700 dark:bg-gray-800">
+              <p className="text-[9px] text-gray-500 dark:text-gray-400">
+                Total
+              </p>
+              <p className="text-sm font-extrabold tabular-nums text-gray-900 dark:text-white">
+                {total}
+              </p>
+            </div>
+
+            {Object.entries(HEALTH_CONFIG).map(([key, config]) => {
+              const Icon = config.icon;
+              const count = stage.health?.[key] ?? 0;
+
+              return (
+                <div
+                  key={key}
+                  className={`min-w-0 rounded-lg border px-2 py-1.5 ${config.className}`}
+                >
+                  <div className="flex items-center gap-1">
+                    <Icon size={10} />
+                    <p className="truncate text-[9px] font-semibold">
+                      {config.shortLabel}
+                    </p>
+                  </div>
+                  <p className="mt-0.5 text-sm font-extrabold tabular-nums">
+                    {count}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </header>
+
+        {/* Compact List */}
+        <div className="min-h-0 flex-1 overflow-y-auto bg-gray-50/50 p-3 dark:bg-gray-950/20 sm:p-4">
           {filteredItems.length === 0 ? (
-            <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-gray-200 px-5 text-center dark:border-gray-700">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 text-gray-400 dark:bg-gray-800">
-                <FiBriefcase size={22} />
-              </div>
+            <div className="flex min-h-[180px] flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white px-5 text-center dark:border-gray-700 dark:bg-gray-900">
+              <FiBriefcase size={22} className="mb-2 text-gray-400" />
               <p className="text-sm font-bold text-gray-700 dark:text-gray-200">
                 Tidak ada pekerjaan
               </p>
-              <p className="mt-1 max-w-sm text-xs text-gray-400">
+              <p className="mt-1 text-xs text-gray-400">
                 {healthFilter
-                  ? `Tidak ada pekerjaan dengan health ${healthConfig?.label || healthFilter} pada tahap ${stage.label}.`
+                  ? `Tidak ada pekerjaan dengan health ${
+                      healthConfig?.label || healthFilter
+                    } pada tahap ${stage.label}.`
                   : `Belum ada pekerjaan pada tahap ${stage.label}.`}
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {filteredItems.map((item, index) => {
                 const itemHealth = getItemHealth(item);
                 const config = HEALTH_CONFIG[itemHealth];
                 const HealthIcon = config?.icon;
 
-                // Gunakan stage pekerjaan yang sedang ditampilkan.
                 const stageDate = getStageDate(
                   item,
                   stage.stage ?? stage.code ?? stage.key,
@@ -252,60 +301,107 @@ const ModalStageWorkItems = ({
                 return (
                   <article
                     key={item.id_work_item ?? item.work_number ?? index}
-                    className="rounded-2xl border border-gray-200/80 bg-white p-4 transition-colors hover:border-gray-300 dark:border-gray-800 dark:bg-gray-900 dark:hover:border-gray-700"
+                    className={[
+                      "rounded-xl border px-3 py-2.5 transition-colors",
+                      config
+                        ? config.className
+                        : "border-gray-200/80 bg-white dark:border-gray-800 dark:bg-gray-900",
+                    ].join(" ")}
                   >
-                    <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                    <div className="flex items-center gap-3">
+                      {/* Work Information */}
                       <div className="min-w-0 flex-1">
-                        <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <div className="mb-1 flex flex-wrap items-center gap-1.5">
                           <span className="font-mono text-[10px] font-bold tracking-wide text-custom-merah-terang">
                             {item.work_number || "Nomor pekerjaan —"}
                           </span>
 
                           {config && HealthIcon && (
                             <span
-                              className={`inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[9px] font-bold ${config.className}`}
+                              className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[9px] font-bold leading-tight border-gray-200/80 bg-white dark:border-gray-800 dark:bg-gray-900`}
                             >
-                              <HealthIcon size={11} />
+                              <HealthIcon size={10} />
                               {config.label}
                             </span>
                           )}
                         </div>
 
-                        <h3 className="text-sm font-bold text-gray-900 dark:text-white">
+                        <h3 className="truncate text-xs font-bold text-gray-900 dark:text-white sm:text-sm">
                           {item.work_name ||
                             item.nama_pekerjaan ||
                             "Nama pekerjaan —"}
                         </h3>
 
-                        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                        <p className="mt-0.5 truncate text-[10px] text-gray-500 dark:text-gray-400 sm:text-xs">
                           {item.client_name ||
                             item.nama_client ||
                             item.client?.client_name ||
                             item.client?.name ||
                             "Klien —"}
                           {item.client_pic_name
-                            ? ` - Pak ${item.client_pic_name}`
+                            ? ` · PIC: ${item.client_pic_name}`
                             : ""}
                         </p>
                       </div>
 
-                      <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
-                        <div className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800">
-                          <p className="text-[9px] text-gray-400">Progress</p>
-                          <p className="text-xs font-bold tabular-nums text-gray-800 dark:text-gray-200">
-                            {item.progress_percent ?? 0}%
-                          </p>
+                      {/* Progress */}
+                      <div className="w-14 shrink-0 text-right sm:w-20">
+                        <p className="text-[9px] text-gray-400">Progress</p>
+                        <p className="text-xs font-extrabold tabular-nums text-gray-800 dark:text-gray-200">
+                          {item.progress_percent ?? 0}%
+                        </p>
+                        <div className="mt-1 h-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+                          <div
+                            className="h-full rounded-full bg-blue-500 transition-all"
+                            style={{
+                              width: `${Math.min(
+                                100,
+                                Math.max(0, Number(item.progress_percent ?? 0)),
+                              )}%`,
+                            }}
+                          />
                         </div>
+                      </div>
 
-                        <div className="rounded-lg bg-gray-50 px-3 py-2 dark:bg-gray-800">
-                          <p className="flex items-center gap-1 text-[9px] text-gray-400">
-                            <FiCalendar size={10} />
-                            {stageDate.label}
-                          </p>
-                          <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
-                            {formatDate(stageDate.date)}
-                          </p>
-                        </div>
+                      {/* Stage Date */}
+
+                      {/* Stage Date */}
+                      <div className="w-[120px] shrink-0 border-l border-gray-100 pl-2 dark:border-gray-800 sm:w-40 sm:pl-3">
+                        {isContractStage ? (
+                          <div className="space-y-2">
+                            <div>
+                              <p className="flex items-center gap-1 text-[9px] text-gray-400">
+                                <FiCalendar size={10} className="shrink-0" />
+                                <span>Tanggal mulai kontrak</span>
+                              </p>
+                              <p className="mt-0.5 text-[10px] font-bold text-gray-800 dark:text-gray-200 sm:text-xs">
+                                {formatDate(item.contract_start_date) || "-"}
+                              </p>
+                            </div>
+
+                            <div>
+                              <p className="flex items-center gap-1 text-[9px] text-gray-400">
+                                <FiCalendar size={10} className="shrink-0" />
+                                <span>Tanggal akhir kontrak</span>
+                              </p>
+                              <p className="mt-0.5 text-[10px] font-bold text-gray-800 dark:text-gray-200 sm:text-xs">
+                                {formatDate(item.contract_end_date) || "-"}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            <p className="flex items-center gap-1 text-[9px] text-gray-400">
+                              <FiCalendar size={10} className="shrink-0" />
+                              <span className="truncate">
+                                {stageDate.label}
+                              </span>
+                            </p>
+                            <p className="mt-1 text-[10px] font-bold text-gray-800 dark:text-gray-200 sm:text-xs">
+                              {formatDate(stageDate.date) || "-"}
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </article>
@@ -315,19 +411,24 @@ const ModalStageWorkItems = ({
           )}
         </div>
 
-        {/* Footer */}
-        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-gray-50/70 px-5 py-3 dark:border-gray-800 dark:bg-gray-800/30 sm:px-6">
-          <p className="text-[10px] text-gray-400">
-            Menampilkan {filteredItems.length} pekerjaan
+        {/* Minimal Footer */}
+        <footer className="flex shrink-0 items-center justify-between gap-3 border-t border-gray-100 bg-white px-4 py-2.5 dark:border-gray-800 dark:bg-gray-900 sm:px-5">
+          <p className="text-[10px] text-gray-500 dark:text-gray-400 sm:text-xs">
+            Menampilkan{" "}
+            <span className="font-bold text-gray-900 dark:text-white">
+              {total}
+            </span>{" "}
+            pekerjaan
           </p>
+
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl bg-custom-merah-terang px-4 py-2 text-xs font-bold text-white transition hover:opacity-90"
+            className="rounded-lg bg-custom-merah-terang px-3 py-1.5 text-xs font-bold text-white transition hover:opacity-90"
           >
             Tutup
           </button>
-        </div>
+        </footer>
       </section>
     </div>
   );

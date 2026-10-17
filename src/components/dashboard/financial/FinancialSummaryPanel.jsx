@@ -48,6 +48,13 @@ const FinancialSummaryPanel = () => {
     fetchFinancialSummary();
   }, []);
 
+  const categoryTotals = {
+    contract: financial?.contract?.total_contract_value ?? 0,
+    unpaid: financial?.unpaid?.total_outstanding ?? 0,
+    unbilled: financial?.unbilled?.total_value ?? 0,
+    paid: financial?.paid?.total_received ?? 0,
+  };
+
   const cards = [
     {
       key: "contract",
@@ -159,6 +166,7 @@ const FinancialSummaryPanel = () => {
         items={
           selectedCategory ? financial?.[selectedCategory]?.items || [] : []
         }
+        total={categoryTotals[selectedCategory] ?? 0}
       />
     </>
   );
