@@ -21,7 +21,7 @@ import {
   safeNumber,
 } from "../components/dashboard-v2/constants";
 import { Kpi, Panel, SegmentedControl } from "../components/dashboard-v2/ui";
-import StagePipeline from "../components/dashboard-v2/StagePipeline";
+import StageList from "../components/dashboard-v2/StageList";
 import WorkMonitoringTable, {
   CONTRACT_COLUMN_STAGES,
 } from "../components/dashboard-v2/WorkMonitoringTable";
@@ -33,11 +33,14 @@ import SummaryDetailModal from "../components/dashboard-v2/SummaryDetailModal";
 
 const REFRESH_INTERVAL = 60_000;
 
+// Stage yang langsung terbuka saat halaman dibuka / direfresh
+const DEFAULT_STAGE = "CONTRACT";
+
 export default function DashboardV2(layoutProps) {
   const { isCurrencyHidden } = useCurrencyVisibility();
 
   const [workType, setWorkType] = useState("");
-  const [activeStage, setActiveStage] = useState("ALL");
+  const [activeStage, setActiveStage] = useState(DEFAULT_STAGE);
   const [data, setData] = useState({
     monitoring: null,
     reminders: null,
@@ -210,7 +213,7 @@ export default function DashboardV2(layoutProps) {
                 value={workType}
                 onChange={(value) => {
                   setWorkType(value);
-                  setActiveStage("ALL");
+                  setActiveStage(DEFAULT_STAGE);
                 }}
               />
               <button
@@ -250,98 +253,119 @@ export default function DashboardV2(layoutProps) {
             </div>
           ) : (
             <>
-              {/* KPI */}
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-                <Kpi
-                  label="Pekerjaan aktif"
-                  onClick={() => setDetailKey("active")}
-                  value={safeNumber(summary.total_active)}
-                  note={`${safeNumber(summary.tender)} tender · ${safeNumber(summary.maintenance)} maintenance`}
-                  icon={BriefcaseBusiness}
-                  tone="slate"
-                />
-                <Kpi
-                  label="Tertinggal jadwal"
-                  onClick={() => setDetailKey("behind")}
-                  value={safeNumber(summary.behind_schedule)}
-                  note="Progres < waktu berjalan"
-                  icon={AlertTriangle}
-                  tone="amber"
-                />
-                <Kpi
-                  label="Perlu perhatian"
-                  onClick={() => setDetailKey("attention")}
-                  value={safeNumber(summary.need_attention)}
-                  note="Deadline ≤ 30 hari atau terlambat"
-                  icon={BellRing}
-                  tone="amber"
-                />
-                <Kpi
-                  label="Terlambat"
-                  onClick={() => setDetailKey("overdue")}
-                  value={safeNumber(summary.overdue)}
-                  note={`${urgentReminders} reminder terlambat / hari ini`}
-                  icon={TimerOff}
-                  tone="red"
-                />
-                <Kpi
-                  label="Potensi invoice"
-                  onClick={() => setDetailKey("invoice")}
-                  value={formatCurrency(
-                    data.invoice?.total_potential,
-                    isCurrencyHidden,
-                  )}
-                  note={`${safeNumber(data.invoice?.total_invoices)} invoice belum lunas`}
-                  icon={Wallet}
-                  highlight
-                />
+              {/* Baris 1: tabel pekerjaan (utama) + ringkasan di samping */}
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+                {/* Wrapper relatif: tinggi baris ditentukan kolom samping */}
+                <div className="relative min-w-0 xl:order-1">
+                  <Panel
+                    title={
+                      activeStage === "ALL"
+                        ? "Semua Pekerjaan Aktif"
+                        : `Stage ${STAGE_META[activeStage]?.label || activeStage}`
+                    }
+                    subtitle={
+                      CONTRACT_COLUMN_STAGES.includes(activeStage)
+                        ? "Diurutkan dari akhir kontrak terdekat"
+                        : "Diurutkan dari deadline terdekat"
+                    }
+                    icon={BriefcaseBusiness}
+                    className="h-full xl:absolute xl:inset-0"
+                    bodyClassName="flex flex-col"
+                    action={
+                      activeStage !== "ALL" && (
+                        <button
+                          type="button"
+                          onClick={() => setActiveStage("ALL")}
+                          className="text-xs font-bold text-custom-merah-terang hover:underline"
+                        >
+                          Tampilkan semua
+                        </button>
+                      )
+                    }
+                  >
+                    <WorkMonitoringTable
+                      items={stageItems}
+                      stage={activeStage}
+                      // Di layar lebar tinggi tabel mengikuti kolom samping (KPI + posisi pekerjaan)
+                      maxHeight="max-h-[70vh] xl:max-h-none xl:min-h-0 xl:flex-1"
+                    />
+                  </Panel>
+                </div>
+
+                <aside className="space-y-3 xl:order-2">
+                  {/* KPI ringkas */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <Kpi
+                      compact
+                      label="Pekerjaan aktif"
+                      onClick={() => setDetailKey("active")}
+                      value={safeNumber(summary.total_active)}
+                      note={`${safeNumber(summary.tender)} tender · ${safeNumber(summary.maintenance)} maint.`}
+                      icon={BriefcaseBusiness}
+                      tone="slate"
+                    />
+                    <Kpi
+                      compact
+                      label="Tertinggal jadwal"
+                      onClick={() => setDetailKey("behind")}
+                      value={safeNumber(summary.behind_schedule)}
+                      note="Progres < waktu"
+                      icon={AlertTriangle}
+                      tone="amber"
+                    />
+                    <Kpi
+                      compact
+                      label="Perlu perhatian"
+                      onClick={() => setDetailKey("attention")}
+                      value={safeNumber(summary.need_attention)}
+                      note="≤ 30 hari / terlambat"
+                      icon={BellRing}
+                      tone="amber"
+                    />
+                    <Kpi
+                      compact
+                      label="Terlambat"
+                      onClick={() => setDetailKey("overdue")}
+                      value={safeNumber(summary.overdue)}
+                      note={`${urgentReminders} reminder mendesak`}
+                      icon={TimerOff}
+                      tone="red"
+                    />
+                    <Kpi
+                      compact
+                      className="col-span-2"
+                      label="Potensi invoice"
+                      onClick={() => setDetailKey("invoice")}
+                      value={formatCurrency(
+                        data.invoice?.total_potential,
+                        isCurrencyHidden,
+                      )}
+                      note={`${safeNumber(data.invoice?.total_invoices)} invoice belum lunas · klik untuk detail`}
+                      icon={Wallet}
+                      highlight
+                    />
+                  </div>
+
+                  {/* Posisi pekerjaan ringkas */}
+                  <Panel
+                    title="Posisi Pekerjaan"
+                    subtitle="Klik stage untuk memfilter tabel"
+                    icon={ListChecks}
+                  >
+                    <StageList
+                      stages={stages}
+                      activeStage={activeStage}
+                      onSelect={setActiveStage}
+                    />
+                  </Panel>
+                </aside>
               </div>
 
-              {/* Posisi pekerjaan */}
-              <Panel
-                title="Posisi Pekerjaan"
-                subtitle="Klik stage untuk melihat daftar pekerjaannya"
-                icon={ListChecks}
-              >
-                <StagePipeline
-                  stages={stages}
-                  activeStage={activeStage}
-                  onSelect={setActiveStage}
-                />
-              </Panel>
-
-              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
-                <Panel
-                  title={
-                    activeStage === "ALL"
-                      ? "Semua Pekerjaan Aktif"
-                      : `Stage ${STAGE_META[activeStage]?.label || activeStage}`
-                  }
-                  subtitle={
-                    CONTRACT_COLUMN_STAGES.includes(activeStage)
-                      ? "Diurutkan dari akhir kontrak terdekat"
-                      : "Diurutkan dari deadline terdekat"
-                  }
-                  icon={BriefcaseBusiness}
-                  action={
-                    activeStage !== "ALL" && (
-                      <button
-                        type="button"
-                        onClick={() => setActiveStage("ALL")}
-                        className="text-xs font-bold text-custom-merah-terang hover:underline"
-                      >
-                        Tampilkan semua
-                      </button>
-                    )
-                  }
-                >
-                  <WorkMonitoringTable items={stageItems} stage={activeStage} />
-                </Panel>
-
+              {/* Baris 2: reminder + potensi invoice */}
+              <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
                 <ReminderPanel data={data.reminders} />
+                <InvoicePotentialPanel data={data.invoice} />
               </div>
-
-              <InvoicePotentialPanel data={data.invoice} />
 
               <p className="px-1 text-right text-[11px] text-gray-400">
                 Auto-refresh setiap 60 detik ·{" "}

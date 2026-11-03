@@ -16,7 +16,7 @@ export default function InvoicePotentialPanel({ data }) {
       subtitle="Sisa tagihan invoice berjalan (termasuk PPN)"
       icon={Wallet}
     >
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,360px)_1fr]">
+      <div className="grid grid-cols-1 gap-5">
         {/* Ringkasan & pembagian per jatuh tempo */}
         <div>
           <p className="text-[11px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">

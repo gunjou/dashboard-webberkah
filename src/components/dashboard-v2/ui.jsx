@@ -1,6 +1,6 @@
 import { REMINDER_META, describeDays } from "./constants";
 
-export function Panel({ title, subtitle, icon: Icon, action, children, className = "" }) {
+export function Panel({ title, subtitle, icon: Icon, action, children, className = "", bodyClassName = "" }) {
   return (
     <section
       className={`flex min-w-0 flex-col rounded-2xl border border-gray-200/80 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 ${className}`}
@@ -25,7 +25,7 @@ export function Panel({ title, subtitle, icon: Icon, action, children, className
         </div>
         {action}
       </header>
-      <div className="min-h-0 flex-1 p-4">{children}</div>
+      <div className={`min-h-0 flex-1 p-4 ${bodyClassName}`}>{children}</div>
     </section>
   );
 }
@@ -38,14 +38,14 @@ const KPI_TONES = {
   slate: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
 };
 
-export function Kpi({ label, value, note, icon: Icon, tone = "slate", highlight = false, onClick }) {
+export function Kpi({ label, value, note, icon: Icon, tone = "slate", highlight = false, onClick, compact = false, className = "" }) {
   const Wrapper = onClick ? "button" : "div";
   return (
     <Wrapper
       type={onClick ? "button" : undefined}
       onClick={onClick}
       title={onClick ? `Lihat detail ${label.toLowerCase()}` : undefined}
-      className={`min-w-0 rounded-2xl border p-4 text-left shadow-sm transition-all ${
+      className={`min-w-0 border text-left shadow-sm transition-all ${compact ? "rounded-xl px-3 py-2" : "rounded-2xl p-4"} ${className} ${
         onClick ? "cursor-pointer hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-custom-merah-terang/40" : ""
       } ${
         highlight
@@ -53,9 +53,9 @@ export function Kpi({ label, value, note, icon: Icon, tone = "slate", highlight 
           : "border-gray-200/80 bg-white dark:border-gray-800 dark:bg-gray-900"
       }`}
     >
-      <div className="flex items-start justify-between gap-2">
+      <div className={`flex justify-between gap-2 ${compact ? "items-center" : "items-start"}`}>
         <p
-          className={`truncate text-[11px] font-bold uppercase tracking-wider ${
+          className={`truncate ${compact ? "text-[10px]" : "text-[11px]"} font-bold uppercase tracking-wider ${
             highlight ? "text-red-100" : "text-gray-500 dark:text-gray-400"
           }`}
         >
@@ -63,14 +63,14 @@ export function Kpi({ label, value, note, icon: Icon, tone = "slate", highlight 
         </p>
         {Icon && (
           <span
-            className={`rounded-xl p-2 ${highlight ? "bg-white/15 text-white" : KPI_TONES[tone]}`}
+            className={`${compact ? "rounded-md p-1" : "rounded-xl p-2"} ${highlight ? "bg-white/15 text-white" : KPI_TONES[tone]}`}
           >
-            <Icon size={16} />
+            <Icon size={compact ? 12 : 16} />
           </span>
         )}
       </div>
       <p
-        className={`mt-1 truncate text-2xl font-black tabular-nums tracking-tight ${
+        className={`truncate ${compact ? "text-lg leading-6" : "mt-1 text-2xl"} font-black tabular-nums tracking-tight ${
           highlight ? "text-white" : "text-gray-900 dark:text-white"
         }`}
       >
@@ -78,14 +78,14 @@ export function Kpi({ label, value, note, icon: Icon, tone = "slate", highlight 
       </p>
       {note && (
         <p
-          className={`mt-1 truncate text-[11px] ${
+          className={`truncate ${compact ? "text-[10px] leading-4" : "mt-1 text-[11px]"} ${
             highlight ? "text-red-100" : "text-gray-500 dark:text-gray-400"
           }`}
         >
           {note}
         </p>
       )}
-      {onClick && (
+      {onClick && !compact && (
         <p
           className={`mt-2 text-[11px] font-bold ${
             highlight ? "text-white" : "text-custom-merah-terang dark:text-red-300"
