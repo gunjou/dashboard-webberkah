@@ -12,7 +12,11 @@ import WarningsPanel from "../components/dashboard/warnings/WarningsPanel";
 import FinancialSummaryPanel from "../components/dashboard/financial/FinancialSummaryPanel";
 import WorkSummaryPanel from "../components/dashboard/work-stages/WorkSummaryPanel";
 
-const Dashboard = ({ onSwitchDashboard, isExecutiveDashboard }) => {
+const Dashboard = ({
+  onSwitchDashboard,
+  isExecutiveDashboard,
+  onToggleDashboardV2,
+}) => {
   // ==================================================
   // 1. STATE
   // ==================================================
@@ -256,6 +260,7 @@ const Dashboard = ({ onSwitchDashboard, isExecutiveDashboard }) => {
       refreshing={refreshing}
       onSwitchDashboard={onSwitchDashboard}
       isExecutiveDashboard={isExecutiveDashboard}
+      onToggleDashboardV2={onToggleDashboardV2}
     >
       {/* 1. WORK STAGES & ATTENDANCE */}
       <section className="grid grid-cols-1 items-stretch gap-4 xl:grid-cols-4">

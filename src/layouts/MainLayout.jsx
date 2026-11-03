@@ -10,6 +10,8 @@ const MainLayout = ({
   lastUpdated = null,
   onSwitchDashboard,
   isExecutiveDashboard = false,
+  onToggleDashboardV2,
+  isDashboardV2 = false,
 }) => {
   return (
     <div className="min-h-screen bg-gray-50/70 font-poppins dark:bg-gray-900">
@@ -21,6 +23,8 @@ const MainLayout = ({
         lastUpdated={lastUpdated}
         onSwitchDashboard={onSwitchDashboard}
         isExecutiveDashboard={isExecutiveDashboard}
+        onToggleDashboardV2={onToggleDashboardV2}
+        isDashboardV2={isDashboardV2}
       />
 
       <main className="mx-auto w-full max-w-[1600px] px-4 py-4 sm:px-5 lg:px-6">

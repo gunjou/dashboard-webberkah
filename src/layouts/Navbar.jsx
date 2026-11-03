@@ -12,9 +12,18 @@ import {
 import LogoBerkah from "../assets/logo_large.png";
 import LogoBerkahWhite from "../assets/logo_white.png";
 import { useCurrencyVisibility } from "../utils/helper";
-import { LuLayoutDashboard, LuSquareDashedKanban } from "react-icons/lu";
+import {
+  LuGauge,
+  LuLayoutDashboard,
+  LuSquareDashedKanban,
+} from "react-icons/lu";
 
-const Navbar = ({ onSwitchDashboard, isExecutiveDashboard = false }) => {
+const Navbar = ({
+  onSwitchDashboard,
+  isExecutiveDashboard = false,
+  onToggleDashboardV2,
+  isDashboardV2 = false,
+}) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [darkMode, setDarkMode] = useState(() =>
     document.documentElement.classList.contains("dark"),
@@ -127,7 +136,7 @@ const Navbar = ({ onSwitchDashboard, isExecutiveDashboard = false }) => {
         {/* Actions & Utilities */}
         <div className="flex shrink-0 items-center gap-2.5 sm:gap-3">
           {/* Switch Dashboard */}
-          <button
+          {/* <button
             type="button"
             onClick={onSwitchDashboard}
             aria-label={
@@ -145,7 +154,30 @@ const Navbar = ({ onSwitchDashboard, isExecutiveDashboard = false }) => {
             ) : (
               <LuSquareDashedKanban size={19} />
             )}
-          </button>
+          </button> */}
+
+          {/* Dashboard V2 (Direksi) */}
+          {onToggleDashboardV2 && (
+            <button
+              type="button"
+              onClick={onToggleDashboardV2}
+              aria-label={
+                isDashboardV2
+                  ? "Kembali ke dashboard utama"
+                  : "Buka dashboard direksi V2"
+              }
+              title={
+                isDashboardV2 ? "Dashboard Utama" : "Dashboard Direksi (V2)"
+              }
+              className={
+                isDashboardV2
+                  ? `${actionButtonClass} !border-custom-merah-terang !text-custom-merah-terang`
+                  : actionButtonClass
+              }
+            >
+              <LuGauge size={19} />
+            </button>
+          )}
 
           {/* Realtime Clock Widget */}
           <div className="flex items-center gap-2.5 rounded-2xl border border-gray-200/80 bg-gray-50/50 px-3.5 py-2 shadow-inner dark:border-gray-800 dark:bg-gray-800/50 sm:px-4">

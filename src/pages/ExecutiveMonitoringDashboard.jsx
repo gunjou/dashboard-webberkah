@@ -370,6 +370,7 @@ function AttendancePeople({ title, people, emptyText }) {
 export default function ExecutiveMonitoringDashboard({
   onSwitchDashboard,
   isExecutiveDashboard,
+  onToggleDashboardV2,
 }) {
   const [data, setData] = useState({
     summary: null,
@@ -465,6 +466,7 @@ export default function ExecutiveMonitoringDashboard({
       refreshing={refreshing}
       onSwitchDashboard={onSwitchDashboard}
       isExecutiveDashboard={isExecutiveDashboard}
+      onToggleDashboardV2={onToggleDashboardV2}
     >
       <main className="min-h-screen  p-3 text-slate-800 md:p-4">
         <div className="mx-auto max-w-[1920px] space-y-3">
